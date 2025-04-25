@@ -19,4 +19,12 @@ module.exports = {
   experimental: {
     appDir: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/:path*',
+        destination: '/:path*',
+      },
+    ];
+  },
 };
