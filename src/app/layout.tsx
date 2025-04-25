@@ -1,9 +1,9 @@
 import { Inter } from 'next/font/google';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { Session } from '@supabase/supabase-js';
+import { AuthProvider as SupabaseAuthProvider } from '@/contexts/AuthContext';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import './globals.css';
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,14 +17,42 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createServerComponentClient({ cookies });
-  const { data: { session } } = await supabase.auth.getSession();
+  const cookieStore = cookies();
+  const supabase = createServerComponentClient({ cookies: () => cookieStore });
+  
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error('Erro ao buscar sessão:', error.message);
+    }
 
-  return (
-    <html lang="pt-BR">
-      <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
-    </html>
-  );
+    return (
+      <html lang="pt-BR">
+        <body className={inter.className}>
+          <SupabaseAuthProvider initialSession={session}>
+            {children}
+          </SupabaseAuthProvider>
+        </body>
+      </html>
+    );
+  } catch (error) {
+    console.error('Erro ao inicializar Supabase:', error);
+    
+    return (
+      <html lang="pt-BR">
+        <body className={inter.className}>
+          {children}
+        </body>
+      </html>
+    );
+  }
+}
+
+interface AuthProviderProps {
+  children: React.ReactNode;
+  initialSession: Session | null;
+}
+
+export function AuthProvider({ children, initialSession }: AuthProviderProps) {
+  // ... resto do código
 }
