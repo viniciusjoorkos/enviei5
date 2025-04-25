@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-module.exports = {
+const nextConfig = {
   images: {
     remotePatterns: [
       {
@@ -16,9 +16,6 @@ module.exports = {
   },
   swcMinify: true,
   output: 'standalone',
-  experimental: {
-    appDir: true,
-  },
   async rewrites() {
     return [
       {
@@ -28,3 +25,5 @@ module.exports = {
     ];
   },
 };
+
+module.exports = nextConfig;
